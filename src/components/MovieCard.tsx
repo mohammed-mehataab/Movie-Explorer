@@ -33,7 +33,6 @@ export function MovieCard({
           </div>
         )}
 
-        {/* Stronger scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -47,7 +46,6 @@ export function MovieCard({
               </div>
             </div>
 
-            {/* Star always visible, higher contrast */}
             <button
               className={[
                 "rounded-xl border px-3 py-2 text-xs transition backdrop-blur",
@@ -63,7 +61,6 @@ export function MovieCard({
             </button>
           </div>
 
-          {/* Hover actions */}
           <div className="mt-3 flex gap-2 opacity-100 md:opacity-0 transition md:group-hover:opacity-100">
             <button
               className="rounded-xl border border-white/15 bg-black/35 px-3 py-2 text-xs text-white backdrop-blur hover:bg-black/45"
@@ -81,7 +78,6 @@ export function MovieCard({
         </div>
       </div>
 
-      {/* Overview */}
       <p className="mt-3 clamp-2 text-sm text-muted">
         {movie.overview || "No description available."}
       </p>

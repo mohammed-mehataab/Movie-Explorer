@@ -46,7 +46,6 @@ export default function HomePage() {
 
   const canSearch = debounced.length >= 2;
 
-  // ⌘K focuses search
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -59,7 +58,6 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Debounced search
   useEffect(() => {
     let cancelled = false;
 
@@ -132,8 +130,6 @@ export default function HomePage() {
 
   const featured = useMemo(() => sortedResults.slice(0, 5), [sortedResults]);
   const resultsCount = sortedResults.length;
-
-  // Reusable "pill" class for light/dark
   const pillClass = "glow-pill px-3 py-2 text-muted";
 
   return (
@@ -153,7 +149,6 @@ export default function HomePage() {
 
             {/* TOP RIGHT CONTROLS */}
             <div className="flex flex-wrap items-center gap-3 text-xs">
-              {/* ✅ Light/Dark toggle button */}
               <ThemeToggle />
 
               <div className={pillClass}>
@@ -184,7 +179,6 @@ export default function HomePage() {
                 className="search-control w-full p-4 pr-28 text-sm outline-none"
               />
 
-              {/* Clear button */}
               {query.trim().length > 0 && (
                 <button
                   type="button"
@@ -233,7 +227,6 @@ export default function HomePage() {
               <MovieGridSkeleton />
             ) : resultsCount > 0 ? (
               <>
-                {/* All Results header */}
                 <div className="mb-3 flex items-end justify-between">
                   <div className="text-sm font-semibold text-soft">
                     All Results

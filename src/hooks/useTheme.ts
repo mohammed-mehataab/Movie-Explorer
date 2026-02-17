@@ -33,15 +33,6 @@ export function useTheme() {
     applyTheme(theme);
   }, [theme]);
 
-  function setAndPersist(next: Theme) {
-    setTheme(next);
-    try {
-      localStorage.setItem(KEY, next);
-    } catch {
-      // ignore
-    }
-  }
-
   function toggleTheme() {
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
@@ -54,5 +45,5 @@ export function useTheme() {
     });
   }
 
-  return { theme, setTheme: setAndPersist, toggleTheme };
+  return { theme, toggleTheme };
 }

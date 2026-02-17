@@ -25,7 +25,6 @@ export function FeaturedRow({
         </div>
       </div>
 
-      {/* Snap scrolling + smooth */}
       <div className="flex gap-3 overflow-x-auto pb-3 pr-1 snap-x snap-mandatory scroll-smooth">
         {movies.map((m) => {
           const img = posterUrl(m.poster_path);
@@ -50,7 +49,6 @@ export function FeaturedRow({
                 </div>
               )}
 
-              {/* Stronger scrim for readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -61,7 +59,6 @@ export function FeaturedRow({
                   {year}
                 </div>
 
-                {/* Actions: always visible on small screens; hover on md+ */}
                 <div className="mt-2 flex gap-2 opacity-100 md:opacity-0 transition md:group-hover:opacity-100">
                   <button
                     className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-xs text-white backdrop-blur hover:bg-black/45"
