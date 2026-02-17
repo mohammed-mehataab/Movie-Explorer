@@ -1,65 +1,257 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useMemo, useState } from "react";
+import type { TmdbMovie } from "@/lib/types";
+import { MovieCard } from "@/components/MovieCard";
+import { MovieDetailsModal } from "@/components/MovieDetailsModal";
+import { FavoritesPanel } from "@/components/FavoritesPanel";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useDebounce } from "@/hooks/useDebounce";
+import { MovieGridSkeleton } from "@/components/MovieGridSkeleton";
+import { Toast } from "@/components/Toast";
+import { FeaturedRow } from "@/components/FeaturedRow";
+
+export default function HomePage() {
+  const [query, setQuery] = useState("");
+  const debounced = useDebounce(query.trim(), 350);
+
+  const [results, setResults] = useState<TmdbMovie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const [selected, setSelected] = useState<TmdbMovie | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const [toast, setToast] = useState<string | null>(null);
+
+  const { favorites, loaded: favLoaded, isFavorite, add, remove, update } =
+    useFavorites();
+
+  const canSearch = debounced.length >= 2;
+
+  // ⌘K focuses search (tiny delight)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const el = document.getElementById("searchBox") as HTMLInputElement | null;
+        el?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!canSearch) {
+        setResults([]);
+        setErr(null);
+        return;
+      }
+
+      setLoading(true);
+      setErr(null);
+
+      try {
+        const r = await fetch(`/api/tmdb/search?q=${encodeURIComponent(debounced)}`);
+        const data = await r.json();
+
+        if (!r.ok) {
+          if (!cancelled) setErr(data?.error || "Search failed. Try again.");
+          return;
+        }
+
+        const movies: TmdbMovie[] = (data?.results || []).map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          overview: m.overview,
+          release_date: m.release_date,
+          poster_path: m.poster_path,
+        }));
+
+        if (!cancelled) {
+          setResults(movies);
+          if (movies.length === 0) setErr("No results found.");
+        }
+      } catch {
+        if (!cancelled) setErr("Network error. Check your connection.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [debounced, canSearch]);
+
+  function openDetails(m: TmdbMovie) {
+    setSelected(m);
+    setOpen(true);
+  }
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 1600);
+  }
+
+  const sortedResults = useMemo(() => {
+    // Posters first (UX feels higher quality)
+    return [...results].sort((a, b) => {
+      const ap = a.poster_path ? 1 : 0;
+      const bp = b.poster_path ? 1 : 0;
+      return bp - ap;
+    });
+  }, [results]);
+
+  const featured = useMemo(() => sortedResults.slice(0, 5), [sortedResults]);
+
+  const resultsCount = sortedResults.length;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="app-bg text-white">
+  <div className="relative z-10 mx-auto max-w-6xl p-6">
+
+      <Toast message={toast} />
+
+      {/* Background glow */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute left-1/3 top-[-200px] h-[520px] w-[520px] rounded-full bg-fuchsia-500/20 blur-[140px]" />
+        <div className="absolute right-1/4 top-[120px] h-[520px] w-[520px] rounded-full bg-cyan-500/20 blur-[140px]" />
+      </div>
+
+      <div className="mx-auto max-w-6xl p-6">
+        {/* HERO */}
+        <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Movie Explorer</h1>
+              <p className="mt-1 text-sm text-white/60">
+                Search, open details, save favorites, rate, and leave notes.
+              </p>
+            </div>
+
+            <div className="flex gap-3 text-xs text-white/60">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                Results: <span className="text-white/90">{loading ? "…" : resultsCount}</span>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                Favorites: <span className="text-white/90">{favorites.length}</span>
+              </div>
+              <div className="hidden rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 md:block">
+                ⌘K to search
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full">
+              <input
+                id="searchBox"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by title (min 2 chars)…"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-4 pr-20 text-sm outline-none focus:border-white/20"
+              />
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/40">
+                {loading ? "Searching…" : "Enter"}
+              </div>
+            </div>
+          </div>
+
+          {err && (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+              {err}
+            </div>
+          )}
+
+          {!loading && !err && featured.length > 0 && (
+            <FeaturedRow
+              movies={featured}
+              isFavorite={isFavorite}
+              onDetails={openDetails}
+              onToggleFav={(m) => {
+                const fav = isFavorite(m.id);
+                if (fav) {
+                  remove(m.id);
+                  showToast("Removed from favorites");
+                } else {
+                  add(m);
+                  showToast("Saved to favorites");
+                }
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          )}
+        </section>
+
+        {/* CONTENT */}
+        <section className="mt-6 grid gap-5 lg:grid-cols-[1.7fr_1fr]">
+          <div>
+            {loading ? (
+              <MovieGridSkeleton />
+            ) : resultsCount > 0 ? (
+              <>
+                <div className="mb-3 text-sm font-semibold text-white/90">
+                  All Results
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {sortedResults.map((m) => {
+                    const fav = isFavorite(m.id);
+                    return (
+                      <MovieCard
+                        key={m.id}
+                        movie={m}
+                        onOpen={() => openDetails(m)}
+                        isFav={fav}
+                        onToggleFav={() => {
+                          if (fav) {
+                            remove(m.id);
+                            showToast("Removed from favorites");
+                          } else {
+                            add(m);
+                            showToast("Saved to favorites");
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center">
+                <div className="text-lg font-semibold">Search something</div>
+                <div className="mt-2 text-sm text-white/60">
+                  Try “Inception”, “Batman”, or whatever your taste is.
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside className="lg:sticky lg:top-6 lg:h-fit">
+            {!favLoaded ? (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/70">
+                Loading favorites…
+              </div>
+            ) : (
+              <FavoritesPanel
+                favorites={favorites}
+                onRemove={(id) => {
+                  remove(id);
+                  showToast("Removed from favorites");
+                }}
+                onUpdate={update}
+              />
+            )}
+          </aside>
+        </section>
+
+        <MovieDetailsModal movie={selected} open={open} onClose={() => setOpen(false)} />
+      </div>
+      </div>
+    </main>
   );
 }
