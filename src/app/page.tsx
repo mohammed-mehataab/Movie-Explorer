@@ -10,6 +10,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { MovieGridSkeleton } from "@/components/MovieGridSkeleton";
 import { Toast } from "@/components/Toast";
 import { FeaturedRow } from "@/components/FeaturedRow";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
@@ -110,35 +111,49 @@ export default function HomePage() {
   }, [results]);
 
   const featured = useMemo(() => sortedResults.slice(0, 5), [sortedResults]);
-
   const resultsCount = sortedResults.length;
 
+  // Reusable "pill" class for light/dark
+  const pillClass =
+    "rounded-2xl border px-3 py-2 " +
+    "border-black/10 bg-black/[0.04] text-black/60 " +
+    "dark:border-white/10 dark:bg-white/[0.03] dark:text-white/60";
+
   return (
-    <main className="app-bg text-white">
+    <main className="app-bg text-black dark:text-white">
       <Toast message={toast} />
 
       <div className="relative z-10 mx-auto max-w-6xl p-6">
         {/* HERO */}
-        <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-6">
+        <section className="rounded-3xl border border-black/10 bg-black/[0.03] p-6 dark:border-white/10 dark:bg-white/[0.035]">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Movie Explorer</h1>
-              <p className="mt-1 text-sm text-white/60">
+              <p className="mt-1 text-sm text-black/60 dark:text-white/60">
                 Search, open details, save favorites, rate, and leave notes.
               </p>
             </div>
 
-            <div className="flex gap-3 text-xs text-white/60">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            {/* TOP RIGHT CONTROLS */}
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              {/* ✅ Light/Dark toggle button */}
+              <ThemeToggle />
+
+              <div className={pillClass}>
                 Results:{" "}
-                <span className="text-white/90">{loading ? "…" : resultsCount}</span>
+                <span className="text-black/90 dark:text-white/90">
+                  {loading ? "…" : resultsCount}
+                </span>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-                Favorites: <span className="text-white/90">{favorites.length}</span>
+
+              <div className={pillClass}>
+                Favorites:{" "}
+                <span className="text-black/90 dark:text-white/90">
+                  {favorites.length}
+                </span>
               </div>
-              <div className="hidden rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 md:block">
-                ⌘K to search
-              </div>
+
+              <div className={`${pillClass} hidden md:block`}>⌘K to search</div>
             </div>
           </div>
 
@@ -149,7 +164,11 @@ export default function HomePage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by title (min 2 chars)…"
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-4 pr-28 text-sm outline-none focus:border-white/20"
+                className="
+                  w-full rounded-2xl border p-4 pr-28 text-sm outline-none
+                  border-black/10 bg-black/[0.04] text-black placeholder:text-black/40 focus:border-black/20
+                  dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white/20
+                "
               />
 
               {/* Clear button */}
@@ -157,20 +176,24 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  className="absolute right-16 top-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-white/10 px-2.5 py-1 text-xs text-white/80 hover:bg-white/15"
+                  className="
+                    absolute right-16 top-1/2 -translate-y-1/2 rounded-lg border px-2.5 py-1 text-xs transition
+                    border-black/10 bg-black/[0.05] text-black/70 hover:bg-black/[0.08]
+                    dark:border-white/10 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/15
+                  "
                 >
                   Clear
                 </button>
               )}
 
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/40">
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-black/40 dark:text-white/40">
                 {loading ? "Searching…" : "Enter"}
               </div>
             </div>
           </div>
 
           {err && (
-            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-200">
               {err}
             </div>
           )}
@@ -201,10 +224,14 @@ export default function HomePage() {
               <MovieGridSkeleton />
             ) : resultsCount > 0 ? (
               <>
-                {/* Better All Results header */}
+                {/* All Results header */}
                 <div className="mb-3 flex items-end justify-between">
-                  <div className="text-sm font-semibold text-white/90">All Results</div>
-                  <div className="text-xs text-white/50">{resultsCount} items</div>
+                  <div className="text-sm font-semibold text-black/90 dark:text-white/90">
+                    All Results
+                  </div>
+                  <div className="text-xs text-black/50 dark:text-white/50">
+                    {resultsCount} items
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -231,9 +258,9 @@ export default function HomePage() {
                 </div>
               </>
             ) : (
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center">
+              <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-10 text-center dark:border-white/10 dark:bg-white/[0.03]">
                 <div className="text-lg font-semibold">Search something</div>
-                <div className="mt-2 text-sm text-white/60">
+                <div className="mt-2 text-sm text-black/60 dark:text-white/60">
                   Try “Inception”, “Batman”, or whatever your taste is.
                 </div>
               </div>
@@ -242,7 +269,7 @@ export default function HomePage() {
 
           <aside className="lg:sticky lg:top-6 lg:h-fit">
             {!favLoaded ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/70">
+              <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm text-black/70 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
                 Loading favorites…
               </div>
             ) : (
