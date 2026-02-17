@@ -21,13 +21,12 @@ export function FeaturedRow({
       <div className="mb-2 flex items-end justify-between">
         <div>
           <div className="text-sm font-semibold text-white/90">Featured</div>
-          <div className="text-xs text-white/50">
-            Quick picks from your search
-          </div>
+          <div className="text-xs text-white/50">Quick picks from your search</div>
         </div>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-2 pr-1">
+      {/* Snap scrolling + smooth */}
+      <div className="flex gap-3 overflow-x-auto pb-3 pr-1 snap-x snap-mandatory scroll-smooth">
         {movies.map((m) => {
           const img = posterUrl(m.poster_path);
           const year = m.release_date ? m.release_date.slice(0, 4) : "N/A";
@@ -36,7 +35,7 @@ export function FeaturedRow({
           return (
             <div
               key={m.id}
-              className="group relative h-52 w-36 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+              className="snap-start group relative h-52 w-36 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
             >
               {img ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -51,25 +50,32 @@ export function FeaturedRow({
                 </div>
               )}
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90" />
+              {/* Stronger scrim for readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="truncate text-sm font-semibold">{m.title}</div>
-                <div className="text-xs text-white/60">{year}</div>
+                <div className="truncate text-sm font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                  {m.title}
+                </div>
+                <div className="text-xs text-white/75 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                  {year}
+                </div>
 
-                <div className="mt-2 flex gap-2 opacity-0 transition group-hover:opacity-100">
+                {/* Actions: always visible on small screens; hover on md+ */}
+                <div className="mt-2 flex gap-2 opacity-100 md:opacity-0 transition md:group-hover:opacity-100">
                   <button
-                    className="rounded-lg border border-white/10 bg-white/10 px-2.5 py-1.5 text-xs hover:bg-white/15"
+                    className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-xs text-white backdrop-blur hover:bg-black/45"
                     onClick={() => onDetails(m)}
                   >
                     Details
                   </button>
+
                   <button
                     className={[
-                      "rounded-lg border px-2.5 py-1.5 text-xs",
+                      "rounded-lg border px-2.5 py-1.5 text-xs backdrop-blur shadow-[0_0_0_1px_rgba(0,0,0,0.35)]",
                       fav
-                        ? "border-yellow-300/30 bg-yellow-300/10 text-yellow-200 hover:bg-yellow-300/15"
-                        : "border-white/10 bg-white/10 text-white/85 hover:bg-white/15",
+                        ? "border-yellow-300/40 bg-yellow-300/20 text-yellow-100 hover:bg-yellow-300/25"
+                        : "border-white/20 bg-black/35 text-white hover:bg-black/45",
                     ].join(" ")}
                     onClick={() => onToggleFav(m)}
                   >

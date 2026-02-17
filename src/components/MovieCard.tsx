@@ -33,38 +33,46 @@ export function MovieCard({
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90" />
+        {/* Stronger scrim */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{movie.title}</div>
-              <div className="text-xs text-white/60">{year}</div>
+              <div className="truncate text-sm font-semibold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                {movie.title}
+              </div>
+              <div className="text-xs text-white/75 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                {year}
+              </div>
             </div>
 
+            {/* Star always visible, higher contrast */}
             <button
               className={[
-                "rounded-xl border px-3 py-2 text-xs transition",
+                "rounded-xl border px-3 py-2 text-xs transition backdrop-blur",
                 isFav
-                  ? "border-yellow-300/30 bg-yellow-300/10 text-yellow-200 hover:bg-yellow-300/15"
-                  : "border-white/10 bg-white/10 text-white/85 hover:bg-white/15",
+                  ? "border-yellow-300/40 bg-yellow-300/20 text-yellow-100 hover:bg-yellow-300/25"
+                  : "border-white/25 bg-black/35 text-white hover:bg-black/45",
               ].join(" ")}
               onClick={onToggleFav}
               aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+              title={isFav ? "Saved" : "Save"}
             >
               {isFav ? "★" : "☆"}
             </button>
           </div>
 
-          <div className="mt-3 flex gap-2 opacity-0 transition group-hover:opacity-100">
+          {/* Hover actions */}
+          <div className="mt-3 flex gap-2 opacity-100 md:opacity-0 transition md:group-hover:opacity-100">
             <button
-              className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs hover:bg-white/15"
+              className="rounded-xl border border-white/15 bg-black/35 px-3 py-2 text-xs text-white backdrop-blur hover:bg-black/45"
               onClick={onOpen}
             >
               Details
             </button>
             <button
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/80 hover:bg-white/10"
+              className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 hover:bg-white/15"
               onClick={onToggleFav}
             >
               {isFav ? "Saved" : "Save"}
@@ -73,7 +81,8 @@ export function MovieCard({
         </div>
       </div>
 
- <p className="mt-3 clamp-2 text-sm text-white/65">
+      {/* Overview */}
+      <p className="mt-3 clamp-2 text-sm text-white/65">
         {movie.overview || "No description available."}
       </p>
     </div>

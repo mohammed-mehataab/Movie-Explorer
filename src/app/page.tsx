@@ -29,7 +29,7 @@ export default function HomePage() {
 
   const canSearch = debounced.length >= 2;
 
-  // ⌘K focuses search (tiny delight)
+  // ⌘K focuses search
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -42,6 +42,7 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Debounced search
   useEffect(() => {
     let cancelled = false;
 
@@ -100,7 +101,7 @@ export default function HomePage() {
   }
 
   const sortedResults = useMemo(() => {
-    // Posters first (UX feels higher quality)
+    // Posters first
     return [...results].sort((a, b) => {
       const ap = a.poster_path ? 1 : 0;
       const bp = b.poster_path ? 1 : 0;
@@ -114,17 +115,9 @@ export default function HomePage() {
 
   return (
     <main className="app-bg text-white">
-  <div className="relative z-10 mx-auto max-w-6xl p-6">
-
       <Toast message={toast} />
 
-      {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute left-1/3 top-[-200px] h-[520px] w-[520px] rounded-full bg-fuchsia-500/20 blur-[140px]" />
-        <div className="absolute right-1/4 top-[120px] h-[520px] w-[520px] rounded-full bg-cyan-500/20 blur-[140px]" />
-      </div>
-
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="relative z-10 mx-auto max-w-6xl p-6">
         {/* HERO */}
         <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -137,7 +130,8 @@ export default function HomePage() {
 
             <div className="flex gap-3 text-xs text-white/60">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-                Results: <span className="text-white/90">{loading ? "…" : resultsCount}</span>
+                Results:{" "}
+                <span className="text-white/90">{loading ? "…" : resultsCount}</span>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
                 Favorites: <span className="text-white/90">{favorites.length}</span>
@@ -148,15 +142,27 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="mt-5">
             <div className="relative w-full">
               <input
                 id="searchBox"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by title (min 2 chars)…"
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-4 pr-20 text-sm outline-none focus:border-white/20"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-4 pr-28 text-sm outline-none focus:border-white/20"
               />
+
+              {/* Clear button */}
+              {query.trim().length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="absolute right-16 top-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-white/10 px-2.5 py-1 text-xs text-white/80 hover:bg-white/15"
+                >
+                  Clear
+                </button>
+              )}
+
               <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/40">
                 {loading ? "Searching…" : "Enter"}
               </div>
@@ -195,9 +201,12 @@ export default function HomePage() {
               <MovieGridSkeleton />
             ) : resultsCount > 0 ? (
               <>
-                <div className="mb-3 text-sm font-semibold text-white/90">
-                  All Results
+                {/* Better All Results header */}
+                <div className="mb-3 flex items-end justify-between">
+                  <div className="text-sm font-semibold text-white/90">All Results</div>
+                  <div className="text-xs text-white/50">{resultsCount} items</div>
                 </div>
+
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {sortedResults.map((m) => {
                     const fav = isFavorite(m.id);
@@ -250,7 +259,6 @@ export default function HomePage() {
         </section>
 
         <MovieDetailsModal movie={selected} open={open} onClose={() => setOpen(false)} />
-      </div>
       </div>
     </main>
   );
