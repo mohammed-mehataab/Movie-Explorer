@@ -19,20 +19,28 @@ export function MovieDetailsModal({
 
   useEffect(() => {
     if (!open || !movie) return;
+    const movieId = movie.id;
 
     let cancelled = false;
-    setLoading(true);
-    setErr(null);
-    setDetails(null);
 
-    fetch(`/api/tmdb/movie/${movie.id}`)
-      .then(async (r) => {
+    async function loadMovieDetails() {
+      setLoading(true);
+      setErr(null);
+      setDetails(null);
+
+      try {
+        const r = await fetch(`/api/tmdb/movie/${movieId}`);
         if (!r.ok) throw new Error("Failed");
-        return r.json();
-      })
-      .then((d) => !cancelled && setDetails(d))
-      .catch(() => !cancelled && setErr("Could not load movie details. Try again."))
-      .finally(() => !cancelled && setLoading(false));
+        const data = await r.json();
+        if (!cancelled) setDetails(data);
+      } catch {
+        if (!cancelled) setErr("Could not load movie details. Try again.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadMovieDetails();
 
     return () => {
       cancelled = true;
@@ -61,7 +69,7 @@ export function MovieDetailsModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl"
+        className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 text-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 border-b border-white/10 p-5">
@@ -73,7 +81,7 @@ export function MovieDetailsModal({
           </div>
 
           <button
-            className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/15"
+            className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/90 hover:bg-white/15"
             onClick={onClose}
           >
             Close

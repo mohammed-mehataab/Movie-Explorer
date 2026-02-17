@@ -15,7 +15,6 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     } finally {
       setLoaded(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   useEffect(() => {

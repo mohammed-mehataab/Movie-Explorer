@@ -20,8 +20,8 @@ export function FeaturedRow({
     <div className="mt-5">
       <div className="mb-2 flex items-end justify-between">
         <div>
-          <div className="text-sm font-semibold text-white/90">Featured</div>
-          <div className="text-xs text-white/50">Quick picks from your search</div>
+          <div className="text-sm font-semibold text-soft">Featured</div>
+          <div className="text-xs text-muted">Quick picks from your search</div>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export function FeaturedRow({
           return (
             <div
               key={m.id}
-              className="snap-start group relative h-52 w-36 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+              className="mini-shell snap-start group relative h-52 w-36 shrink-0 overflow-hidden"
             >
               {img ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -45,7 +45,7 @@ export function FeaturedRow({
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-white/50">
+                <div className="flex h-full w-full items-center justify-center text-xs text-muted">
                   No Poster
                 </div>
               )}

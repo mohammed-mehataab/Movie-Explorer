@@ -1,14 +1,24 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  movieId     Int
+  title       String
+  posterPath  String?
+  releaseDate String?
+  overview    String?
+  rating      Int      @default(3)
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, movieId], map: "userId_movieId")
+  @@index([userId, updatedAt])
 }

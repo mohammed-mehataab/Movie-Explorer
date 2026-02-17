@@ -12,6 +12,14 @@ import { Toast } from "@/components/Toast";
 import { FeaturedRow } from "@/components/FeaturedRow";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
+type SearchMovieResponseItem = {
+  id: number;
+  title: string;
+  overview: string;
+  release_date?: string;
+  poster_path?: string | null;
+};
+
 export default function HomePage() {
   const [query, setQuery] = useState("");
   const debounced = useDebounce(query.trim(), 350);
@@ -25,8 +33,16 @@ export default function HomePage() {
 
   const [toast, setToast] = useState<string | null>(null);
 
-  const { favorites, loaded: favLoaded, isFavorite, add, remove, update } =
-    useFavorites();
+  const {
+    favorites,
+    loaded: favLoaded,
+    syncStatus,
+    syncError,
+    isFavorite,
+    add,
+    remove,
+    update,
+  } = useFavorites();
 
   const canSearch = debounced.length >= 2;
 
@@ -66,7 +82,11 @@ export default function HomePage() {
           return;
         }
 
-        const movies: TmdbMovie[] = (data?.results || []).map((m: any) => ({
+        const rawResults: SearchMovieResponseItem[] = Array.isArray(data?.results)
+          ? data.results
+          : [];
+
+        const movies: TmdbMovie[] = rawResults.map((m) => ({
           id: m.id,
           title: m.title,
           overview: m.overview,
@@ -114,22 +134,19 @@ export default function HomePage() {
   const resultsCount = sortedResults.length;
 
   // Reusable "pill" class for light/dark
-  const pillClass =
-    "rounded-2xl border px-3 py-2 " +
-    "border-black/10 bg-black/[0.04] text-black/60 " +
-    "dark:border-white/10 dark:bg-white/[0.03] dark:text-white/60";
+  const pillClass = "glow-pill px-3 py-2 text-muted";
 
   return (
-    <main className="app-bg text-black dark:text-white">
+    <main className="app-bg">
       <Toast message={toast} />
 
       <div className="relative z-10 mx-auto max-w-6xl p-6">
         {/* HERO */}
-        <section className="rounded-3xl border border-black/10 bg-black/[0.03] p-6 dark:border-white/10 dark:bg-white/[0.035]">
+        <section className="glass-shell p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Movie Explorer</h1>
-              <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+              <p className="mt-1 text-sm text-muted">
                 Search, open details, save favorites, rate, and leave notes.
               </p>
             </div>
@@ -141,14 +158,14 @@ export default function HomePage() {
 
               <div className={pillClass}>
                 Results:{" "}
-                <span className="text-black/90 dark:text-white/90">
+                <span className="text-soft">
                   {loading ? "…" : resultsCount}
                 </span>
               </div>
 
               <div className={pillClass}>
                 Favorites:{" "}
-                <span className="text-black/90 dark:text-white/90">
+                <span className="text-soft">
                   {favorites.length}
                 </span>
               </div>
@@ -164,11 +181,7 @@ export default function HomePage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by title (min 2 chars)…"
-                className="
-                  w-full rounded-2xl border p-4 pr-28 text-sm outline-none
-                  border-black/10 bg-black/[0.04] text-black placeholder:text-black/40 focus:border-black/20
-                  dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white/20
-                "
+                className="search-control w-full p-4 pr-28 text-sm outline-none"
               />
 
               {/* Clear button */}
@@ -176,17 +189,13 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  className="
-                    absolute right-16 top-1/2 -translate-y-1/2 rounded-lg border px-2.5 py-1 text-xs transition
-                    border-black/10 bg-black/[0.05] text-black/70 hover:bg-black/[0.08]
-                    dark:border-white/10 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/15
-                  "
+                  className="btn absolute right-16 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs"
                 >
                   Clear
                 </button>
               )}
 
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-black/40 dark:text-white/40">
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted">
                 {loading ? "Searching…" : "Enter"}
               </div>
             </div>
@@ -226,10 +235,10 @@ export default function HomePage() {
               <>
                 {/* All Results header */}
                 <div className="mb-3 flex items-end justify-between">
-                  <div className="text-sm font-semibold text-black/90 dark:text-white/90">
+                  <div className="text-sm font-semibold text-soft">
                     All Results
                   </div>
-                  <div className="text-xs text-black/50 dark:text-white/50">
+                  <div className="text-xs text-muted">
                     {resultsCount} items
                   </div>
                 </div>
@@ -258,9 +267,9 @@ export default function HomePage() {
                 </div>
               </>
             ) : (
-              <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-10 text-center dark:border-white/10 dark:bg-white/[0.03]">
-                <div className="text-lg font-semibold">Search something</div>
-                <div className="mt-2 text-sm text-black/60 dark:text-white/60">
+              <div className="glass-shell p-10 text-center">
+                <div className="text-lg font-semibold text-soft">Search something</div>
+                <div className="mt-2 text-sm text-muted">
                   Try “Inception”, “Batman”, or whatever your taste is.
                 </div>
               </div>
@@ -269,12 +278,14 @@ export default function HomePage() {
 
           <aside className="lg:sticky lg:top-6 lg:h-fit">
             {!favLoaded ? (
-              <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm text-black/70 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
+              <div className="glass-shell p-4 text-sm text-muted">
                 Loading favorites…
               </div>
             ) : (
               <FavoritesPanel
                 favorites={favorites}
+                syncStatus={syncStatus}
+                syncError={syncError}
                 onRemove={(id) => {
                   remove(id);
                   showToast("Removed from favorites");

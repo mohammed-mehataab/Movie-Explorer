@@ -18,7 +18,9 @@ export function StarRating({
             onClick={() => onChange(n)}
             className={[
               "text-lg leading-none transition",
-              active ? "text-yellow-300" : "text-white/25 hover:text-white/50",
+              active
+                ? "text-amber-400"
+                : "text-black/20 hover:text-black/40 dark:text-white/25 dark:hover:text-white/50",
             ].join(" ")}
             aria-label={`Rate ${n} star`}
             title={`${n}`}

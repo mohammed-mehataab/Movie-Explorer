@@ -6,14 +6,14 @@ export function MovieGridSkeleton() {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+          className="animate-pulse rounded-2xl border border-black/10 bg-black/[0.04] p-3 dark:border-white/10 dark:bg-white/[0.04]"
         >
-          <div className="h-56 rounded-xl bg-white/10" />
-          <div className="mt-3 h-4 w-3/4 rounded bg-white/10" />
-          <div className="mt-2 h-4 w-1/2 rounded bg-white/10" />
+          <div className="h-56 rounded-xl bg-black/10 dark:bg-white/10" />
+          <div className="mt-3 h-4 w-3/4 rounded bg-black/10 dark:bg-white/10" />
+          <div className="mt-2 h-4 w-1/2 rounded bg-black/10 dark:bg-white/10" />
           <div className="mt-4 flex gap-2">
-            <div className="h-9 w-20 rounded-lg bg-white/10" />
-            <div className="h-9 w-20 rounded-lg bg-white/10" />
+            <div className="h-9 w-20 rounded-lg bg-black/10 dark:bg-white/10" />
+            <div className="h-9 w-20 rounded-lg bg-black/10 dark:bg-white/10" />
           </div>
         </div>
       ))}

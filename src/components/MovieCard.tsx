@@ -18,8 +18,8 @@ export function MovieCard({
   const img = posterUrl(movie.poster_path);
 
   return (
-    <div className="group rounded-3xl border border-white/10 bg-white/[0.035] p-3 transition hover:bg-white/[0.06]">
-      <div className="relative overflow-hidden rounded-2xl border border-white/10">
+    <div className="group movie-card-shell p-3">
+      <div className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
         {img ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -28,7 +28,7 @@ export function MovieCard({
             className="h-64 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-64 w-full items-center justify-center text-xs text-white/55">
+          <div className="flex h-64 w-full items-center justify-center text-xs text-muted">
             No Poster
           </div>
         )}
@@ -82,7 +82,7 @@ export function MovieCard({
       </div>
 
       {/* Overview */}
-      <p className="mt-3 clamp-2 text-sm text-white/65">
+      <p className="mt-3 clamp-2 text-sm text-muted">
         {movie.overview || "No description available."}
       </p>
     </div>
