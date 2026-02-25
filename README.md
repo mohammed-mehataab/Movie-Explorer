@@ -13,7 +13,7 @@ If database config is present, favorites also sync to the server.
 
 ## Live URL
 
-https://movieexplorer-jet.vercel.app/
+https://movieexplorer-phi.vercel.app/
 
 ## Tech
 
